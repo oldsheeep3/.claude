@@ -1,36 +1,28 @@
 ---
-description: 実装計画ドキュメントに基づいて実装を開始する
-allowed-tools:
-  [Agent, Bash, Read, Write, Edit, Grep, Glob, TaskCreate, TaskUpdate]
-args: path
+description: 個別タスク指示書に基づいて実装を開始する
+allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
+argument-hint: <個別タスク指示書名またはパス>
 ---
 
-指定された実装計画ドキュメントに基づき、implementer エージェントのワークフローで実装を進める。
+# 個別タスクの実装を開始
 
-## 引数
+あなたは **implementer エージェント** として動作します。
 
-- `$ARGUMENTS`: 実装計画ドキュメントのパス（例: `docs/tasks/add-overlay-mode.md`）
-  - `docs/tasks/` を省略した場合は自動的に補完する
+## 入力
+- **個別タスク指示書**: `$ARGUMENTS`
+  - 例: "agent-A-001-setup-db" (または "docs/tasks/agent-A-001-setup-db.md")
+  - `docs/tasks/` や `.md` を省略した場合は自動補完します。
+
+## 実行内容
+`.claude/agents/implementer.md` の指示に従い、ステータスを `doing` に遷移させ、指示書の各ステップを実行・検証・コミットし、最終的に `reviewing` に移行します。
 
 ## ワークフロー
-
-1. 実装計画ドキュメント `$ARGUMENTS` を読み込む
-   - パスに `docs/tasks/` が含まれていなければ `docs/tasks/$ARGUMENTS` として読む
-2. ドキュメントの内容を把握し、実装ステップを TaskCreate で TODO リストとして作成する
-3. 各ステップを順番に実装する
-   - 既存コードへの影響を確認してから変更する
-   - プロジェクトの既存のコード規約・設計に倣う
-4. 各ステップ完了時に TaskUpdate でステータスを更新する
-5. 全ステップ完了後、プロジェクトの検証コマンド（lint / type check / test / build 等）が存在する場合は実行する
-   - 実行すべきコマンドは `package.json` / `Makefile` / `justfile` / `Cargo.toml` / `pyproject.toml` などから検出する
-   - 警告・エラーがあれば修正する
-6. 適切な粒度でコミットする
-7. 完了報告を出力する
-
-## 全体フロー
-
 ```
-/create-task → /start-with-plan → /code-review → /pr-create
+/create-task                    # 実装計画設計
+       ↓
+/start-with-plan <個別タスク名>   # 実装開始（このコマンド）
+       ↓
+（実装完了 ➡️ reviewing へ移行）
+       ↓
+/code-review <個別タスク名>       # コードレビュー
 ```
-
-実装完了後、`/code-review` でレビューし、`/pr-create` で PR を作成する。
