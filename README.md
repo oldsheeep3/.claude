@@ -9,7 +9,11 @@
 任意のプロジェクトのルートで、このリポジトリを `.claude/` として取り込みます。
 
 ```bash
-git clone git@github.com:ruribou/.claude.git .claude
+git clone git@github.com:oldsheeep3/.claude.git .claude
+```
+
+```bash
+git clone https://github.com/oldsheeep3/.claude.git .claude
 ```
 
 以降、Claude Code を起動するとこのディレクトリの設定が自動で読み込まれます。
