@@ -34,10 +34,10 @@ resolve_cli_command() {
     local val=$1
     case "$val" in
         sonnet)
-            echo "claude --model claude-4-7-sonnet"
+            echo "claude --model sonnet"
             ;;
         opus)
-            echo "claude --model claude-4-opus"
+            echo "claude --model opus"
             ;;
         claude)
             echo "claude"
@@ -87,7 +87,7 @@ while true; do
     case "$STATUS" in
         planning|doing|fixing)
             echo "Invoking implementer agent for $TASK_NAME using $IMPLEMENTER_CLI..."
-            $IMPLEMENTER_CLI /start-with-plan "$TASK_NAME"
+            $IMPLEMENTER_CLI --dangerously-skip-permissions -p "/start-with-plan $TASK_NAME" < /dev/null
             
             # Check if status has advanced. If not, notify user and pause.
             NEW_STATUS=$(get_status)
@@ -101,28 +101,24 @@ while true; do
             ;;
 
         reviewing)
-            # The review MUST be done by the parent agent (Opus) who planned the task
-            echo "Invoking parent reviewer agent for $TASK_NAME using $PARENT_CLI..."
-            $PARENT_CLI /code-review "$TASK_NAME"
-            
-            NEW_STATUS=$(get_status)
-            if [ "$NEW_STATUS" = "reviewing" ]; then
-                echo "Warning: Parent reviewer did not advance status. Agent might be waiting for input."
-                if [ -f "$NOTIFY_SCRIPT" ]; then
-                    "$NOTIFY_SCRIPT" "Parent reviewer for task $TASK_NAME needs attention (Status remains reviewing)."
-                fi
-                sleep 30
+            # Review is performed MANUALLY by the parent agent (the human-in-session
+            # Opus who authored the spec/plan). The lifecycle does not spawn a headless
+            # reviewer; it notifies and waits until the parent sets status to
+            # 'fixing' (auto-resumes the implementer) or 'done'.
+            echo "Task $TASK_NAME is awaiting manual review by the parent agent. Waiting..."
+            if [ -f "$NOTIFY_SCRIPT" ]; then
+                "$NOTIFY_SCRIPT" "Task $TASK_NAME is ready for review (status: reviewing)."
             fi
+            sleep 30
             ;;
 
         done)
-            echo "Task $TASK_NAME is done. Creating Pull Request using $PARENT_CLI..."
-            $PARENT_CLI /pr-create "$TASK_NAME"
-            
+            # PR creation is handled MANUALLY by the parent agent (with confirmation).
+            echo "Task $TASK_NAME is done. PR creation is handled manually by the parent agent."
             if [ -f "$NOTIFY_SCRIPT" ]; then
-                "$NOTIFY_SCRIPT" "Task $TASK_NAME successfully completed and PR created."
+                "$NOTIFY_SCRIPT" "Task $TASK_NAME is done and ready for manual PR creation."
             fi
-            echo "=== Lifecycle Completed for $TASK_NAME ==="
+            echo "=== Lifecycle Completed for $TASK_NAME (PR pending manual creation) ==="
             exit 0
             ;;
 
