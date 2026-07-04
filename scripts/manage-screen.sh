@@ -106,7 +106,7 @@ if [ "$COMMAND" = "start" ]; then
             ;;
     esac
 
-    # Extract only the binary command name (e.g., "claude" from "claude -m ...")
+    # Extract only the binary command name (e.g., "claude" from "claude --model ...")
     CLI_BIN=$(echo "$REQUIRED_CLI" | awk '{print $1}')
     if ! command -v "$CLI_BIN" &> /dev/null; then
         echo "Error: Required agent CLI '$CLI_BIN' is not installed or not in PATH."

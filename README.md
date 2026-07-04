@@ -137,11 +137,11 @@ git subtree add --prefix=src/sub/agent-A agent-A-branch
 本ワークフローでは、処理内容やタスクの重さに合わせて、最適なエージェントツールやモデルを自動で切り替えて実行できます。
 
 - **設計・計画・レビューフェーズ（上流・検証工程）**:
-  仕様の壁打ち（`/create-spec`）、計画策定（`/create-task`）、および実装コードの検証（`/code-review`）は、仕様全体の文脈を深く理解している必要があるため、**`claude -m claude-3-opus`（Opus）の親エージェント（`task-planner2`）** が一貫して担当します。
+  仕様の壁打ち（`/create-spec`）、計画策定（`/create-task`）、および実装コードの検証（`/code-review`）は、仕様全体の文脈を深く理解している必要があるため、**`claude --model claude-3-opus`（Opus）の親エージェント（`task-planner2`）** が一貫して担当します。
 - **実装フェーズ（並列実行工程）**:
   個別指示書の YAML フロントマターにある `agent_cli` メタデータにより、エージェントを動的に解決します。
   ```yaml
-  agent_cli: sonnet   # claude -m claude-3-5-sonnet で起動
+  agent_cli: sonnet   # claude --model claude-3-5-sonnet で起動
   # または
   agent_cli: agy      # agy (Antigravity) で起動
   ```

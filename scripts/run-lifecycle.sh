@@ -34,10 +34,10 @@ resolve_cli_command() {
     local val=$1
     case "$val" in
         sonnet)
-            echo "claude -m claude-3-5-sonnet"
+            echo "claude --model claude-4-7-sonnet"
             ;;
         opus)
-            echo "claude -m claude-3-opus"
+            echo "claude --model claude-4-opus"
             ;;
         claude)
             echo "claude"
