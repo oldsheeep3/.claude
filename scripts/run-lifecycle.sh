@@ -113,12 +113,13 @@ while true; do
             ;;
 
         done)
-            # PR creation is handled MANUALLY by the parent agent (with confirmation).
-            echo "Task $TASK_NAME is done. PR creation is handled manually by the parent agent."
+            echo "Task $TASK_NAME is done. Creating/updating Pull Request for this task..."
+            # Invoke pr-create command via the parent agent CLI
+            $PARENT_CLI --dangerously-skip-permissions -p "/pr-create $TASK_NAME" < /dev/null
             if [ -f "$NOTIFY_SCRIPT" ]; then
-                "$NOTIFY_SCRIPT" "Task $TASK_NAME is done and ready for manual PR creation."
+                "$NOTIFY_SCRIPT" "Task $TASK_NAME is done and Pull Request has been created/updated."
             fi
-            echo "=== Lifecycle Completed for $TASK_NAME (PR pending manual creation) ==="
+            echo "=== Lifecycle Completed for $TASK_NAME (PR created/updated) ==="
             exit 0
             ;;
 

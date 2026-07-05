@@ -28,7 +28,9 @@ git clone https://github.com/oldsheeep3/.claude.git .claude
 ├── review-patterns.md     言語非依存のレビュー観点・マルチエージェント開発用チェックリスト
 ├── agents/
 │   ├── spec-consultant.md 仕様書の壁打ち・策定エージェント
-│   └── task-planner2.md   仕様書 → 並列/直列タスク設計・指示書作成、およびコードレビュー
+│   ├── task-planner2.md   仕様書 → 並列/直列タスク設計・指示書作成、およびコードレビュー
+│   ├── human-reviewer.md  人間レビュー調整エージェント
+│   └── single-task-runner.md 単一タスク自律実行エージェント
 ├── commands/
 │   ├── create-spec.md     /create-spec  仕様書の壁打ち作成
 │   ├── create-task.md     /create-task  仕様書に基づく実装計画・指示書作成
@@ -36,7 +38,9 @@ git clone https://github.com/oldsheeep3/.claude.git .claude
 │   ├── start-with-plan.md /start-with-plan <個別タスク名>  実装エージェント起動
 │   ├── code-review.md     /code-review <個別タスク名>  親エージェントによるコードレビュー起動
 │   ├── pr-create.md       /pr-create <個別タスク名>    個別タスク完了後の PR 作成・更新
-│   └── clean-branch.md    /clean-branch マージ済みブランチの整理
+│   ├── clean-branch.md    /clean-branch マージ済みブランチの整理
+│   ├── human-review.md    /human-review [対象] 人間によるレビューの開始
+│   └── single-task.md     /single-task <タスク内容> 単一タスクの自律実行
 ├── scripts/
 │   ├── manage-screen.sh   GNU Screen によるエージェントセッション・ステータス管理シェル
 │   ├── run-lifecycle.sh   各タスクの自律ライフサイクル（実装・レビュー・PR作成）ランナー
@@ -197,3 +201,19 @@ Windows のシステム機能（ビープ音）と前面ポップアップ（メ
 - **競合の回避**: 各エージェントは `git subtree` を用いて、共通 Epic ブランチから派生させた個別のサブディレクトリ・ブランチで作業するため、並列実行してもコードのコンフリクトが起きません。
 - **直列化の保証**: 定制が必要なタスクは、`task-planner2` が自動で直列の依存関係（フェーズ分け）として設計します。
 - **検証の自動化**: 各エージェントは `package.json` などの設定ファイルを自動検出して linter や test を実行し、合格するまで次のステータスへ進めません。
+
+---
+
+## 🛠️ 新規追加コマンド & エージェント
+
+人間との連携を強化するためのコマンドおよびエージェントが追加されました。
+
+### 人間レビューコマンド (`/human-review`)
+- **使用エージェント**: `human-reviewer`
+- **目的**: 変更点の diff やサマリーを抽出し、人間に明示的に提示してフィードバック（Approve / Request Changes / Comment）を求める。
+- **実行例**: `/human-review` (全体対象) もしくは `/human-review src/utils.ts`
+
+### シングルタスク自律実行 (`/single-task`)
+- **使用エージェント**: `single-task-runner`
+- **目的**: 外部との対話オーバーヘッドをゼロにし、与えられた単一のタスクを自律的かつ迅速に処理して結果を報告する。
+- **実行例**: `/single-task "src/math.ts の単体テストを jest で作成して実行して"`

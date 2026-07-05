@@ -27,5 +27,5 @@ argument-hint: <仕様書ファイルのパス>
        ↓
 /code-review <個別タスク名>       # レビュー実行
        ↓
-/pr-create                      # すべて done になったら PR 作成
+/pr-create <個別タスク名>        # 個別タスクが done になったら自動で PR 作成
 ```

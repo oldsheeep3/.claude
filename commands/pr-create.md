@@ -16,9 +16,15 @@ argument-hint: <個別タスク名またはパス>
 ## 手順
 
 1. **タスク完了状況の確認**:
-   - 指定された個別タスク指示書ファイルを読み込む。
-   - YAML フロントマターの `status` が `done` になっているか確認する。
-   - もし `done` になっていない場合（`planning`/`doing`/`reviewing`/`fixing` の状態）は、レビューが未完了であるため、PR 作成を中断する。
+   - 指定された個別タスク指示書ファイル `docs/tasks/$ARGUMENTS.md` を読み込みます。
+   - 以下のコマンドを実行し、YAMLフロントマターの `status` が `done` になっていることを厳格に確認します。もし `done` になっていない場合（`planning`/`doing`/`reviewing`/`fixing` の状態）は、レビューが未完了であるため、即座にエラーを出してPR作成処理を強制終了（中断）してください。
+     ```bash
+     STATUS=$(grep "^status:" "docs/tasks/$ARGUMENTS.md" | head -n 1 | cut -d":" -f2- | tr -d " ")
+     if [ "$STATUS" != "done" ]; then
+         echo "Error: Task status is '$STATUS'. A Pull Request can only be created when the status is 'done' (review passed)."
+         exit 1
+     fi
+     ```
 
 2. **親 Epic ブランチおよび subtree 情報の取得**:
    - `docs/tasks/orchestration-plan.md` から「Epicブランチ名」を取得する。
